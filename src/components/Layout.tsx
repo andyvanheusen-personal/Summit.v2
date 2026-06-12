@@ -34,7 +34,7 @@ const NAV = [
 export default function Layout() {
   const { isAuthenticated, logout } = useAuth();
   const { status: membersStatus, error: membersError, reload: reloadMembers } = useMembers();
-  const { unreadCount: unread } = useMessages();
+  const { unreadCount: unread, status: messagesStatus, error: messagesError, reload: reloadMessages } = useMessages();
   const { unseenCount } = useInternalNotes();
   const navigate = useNavigate();
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
@@ -173,20 +173,31 @@ export default function Layout() {
           </Toolbar>
         </AppBar>
         <Box component="main" sx={{ p: { xs: 2, md: 3.5 }, flexGrow: 1 }}>
-          {membersStatus === 'ready' ? (
+          {membersStatus === 'ready' && messagesStatus === 'ready' ? (
             <Outlet />
-          ) : membersStatus === 'loading' ? (
+          ) : membersStatus === 'error' || messagesStatus === 'error' ? (
+            <Alert
+              severity="error"
+              action={
+                <Button
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    if (membersStatus === 'error') reloadMembers();
+                    if (messagesStatus === 'error') reloadMessages();
+                  }}
+                >
+                  Retry
+                </Button>
+              }
+            >
+              Couldn't load data from the Strata API ({membersError ?? messagesError}). Is the
+              backend running on port 8000?
+            </Alert>
+          ) : (
             <Box sx={{ display: 'grid', placeItems: 'center', minHeight: '60vh' }}>
               <CircularProgress />
             </Box>
-          ) : (
-            <Alert
-              severity="error"
-              action={<Button color="inherit" size="small" onClick={reloadMembers}>Retry</Button>}
-            >
-              Couldn't load members from the Strata API ({membersError}). Is the backend running
-              on port 8000?
-            </Alert>
           )}
         </Box>
       </Box>

@@ -41,8 +41,11 @@ verification with `chromium.launch({ channel: 'chrome', headless: true })`.
   retry), so pages can assume members are loaded. Pure per-member helpers
   (`currentWeight`, `totalLoss`, `goalProgressPct`) live in `src/data/memberStats.ts`.
   The backend must be running on :8000 for member pages to render.
+- **Messages come from Strata too**: `MessagesContext` seeds its state from
+  `/api/messages`; mark-read and send stay client-side React state (backend is
+  stateless). `Layout`'s gate covers both the members and messages fetches.
 - `src/data/mockData.ts` — demo data for the not-yet-migrated domains (alerts,
-  tasks, messages, internal notes, appointments, staff). Deterministic (seeded
+  tasks, internal notes, appointments, staff). Deterministic (seeded
   mulberry32 PRNG), anchored to fixed `TODAY = 2026-06-12`. The member generator is
   still in there (un-exported) because alert text derives from member values — it
   must stay in lockstep with Strata's `app/data/members.py`. `Date.now()` is never
@@ -84,7 +87,7 @@ up there). Mock data is deterministic, so flows are scriptable.
 
 ## Roadmap
 
-Replace mockData one domain at a time with Strata endpoints (members ✅ → messages →
+Replace mockData one domain at a time with Strata endpoints (members ✅ → messages ✅ →
 internal notes → appointments/reports) via the `/api` proxy, ideally generating the
 TS client from Strata's OpenAPI schema (hand-written `types.ts` is still the source
 of truth for now).

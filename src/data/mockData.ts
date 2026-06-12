@@ -6,7 +6,6 @@ import type {
   DoseLog,
   InternalNote,
   Member,
-  Message,
   SessionNote,
   SideEffect,
   SmartGoal,
@@ -260,17 +259,7 @@ export const TASKS: CoachTask[] = [
   { id: 't-8', memberId: null, title: 'Submit weekly cohort summary to SEIU Local 73 fund office', due: TODAY.hour(16).minute(30).toISOString(), kind: 'Admin', done: false },
 ];
 
-export const MESSAGES: Message[] = [
-  { id: 'msg-1', memberId: 'm-8', from: 'member', body: "The new dose is hitting me hard — couldn't keep dinner down last night. Should I skip this week's shot?", sentAt: TODAY.subtract(2, 'hour').toISOString(), read: false },
-  { id: 'msg-2', memberId: 'm-1', from: 'member', body: 'Down another 1.5 lbs this week!! 4 lbs from my goal 🎉', sentAt: TODAY.subtract(3, 'hour').toISOString(), read: false },
-  { id: 'msg-3', memberId: 'm-10', from: 'member', body: 'Quick question — is it normal to feel full after just half a meal? Trying not to under-eat protein.', sentAt: TODAY.subtract(5, 'hour').toISOString(), read: false },
-  { id: 'msg-4', memberId: 'm-4', from: 'member', body: 'Got my resistance bands. Can you send that 20-min routine you mentioned?', sentAt: TODAY.subtract(1, 'day').toISOString(), read: true },
-  { id: 'msg-5', memberId: 'm-4', from: 'coach', body: 'Absolutely — sending the routine now. Start with 2 sets and we’ll review form on Friday’s call.', sentAt: TODAY.subtract(1, 'day').add(1, 'hour').toISOString(), read: true },
-  { id: 'msg-6', memberId: 'm-7', from: 'member', body: 'Survived the family BBQ — protein first, one plate, no seconds. Old me would have gone back three times.', sentAt: TODAY.subtract(2, 'day').toISOString(), read: true },
-  { id: 'msg-7', memberId: 'm-7', from: 'coach', body: 'That is a huge win, Angela. That skill is exactly what keeps results durable after titration. 👏', sentAt: TODAY.subtract(2, 'day').add(2, 'hour').toISOString(), read: true },
-  { id: 'msg-8', memberId: 'm-3', from: 'coach', body: 'Hi Patricia — noticed a couple of missed doses. No judgment at all; want to find 10 minutes this week to talk through what’s getting in the way?', sentAt: TODAY.subtract(3, 'day').toISOString(), read: true },
-  { id: 'msg-9', memberId: 'm-12', from: 'member', body: 'One year in. Never thought I’d be the guy meal-prepping on Sundays. Thanks coach.', sentAt: TODAY.subtract(4, 'day').toISOString(), read: true },
-];
+// MESSAGES has migrated to Strata (app/data/messages.py, served at /api/messages).
 
 export const APPOINTMENTS: Appointment[] = [
   { id: 'ap-1', memberId: 'm-2', start: TODAY.hour(10).minute(0).toISOString(), end: TODAY.hour(10).minute(30).toISOString(), type: 'Video Session', status: 'upcoming' },
