@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import dayjs, { Dayjs } from 'dayjs';
 import {
   Alert, Box, Button, Card, CardContent, CardHeader, Chip, Dialog, DialogActions, DialogContent,
@@ -17,8 +17,10 @@ import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded';
 import LockRoundedIcon from '@mui/icons-material/LockRounded';
 import RestaurantRoundedIcon from '@mui/icons-material/RestaurantRounded';
 import FitnessCenterRoundedIcon from '@mui/icons-material/FitnessCenterRounded';
+import LockPersonRoundedIcon from '@mui/icons-material/LockPersonRounded';
 import { TITRATION, currentWeight, memberById, totalLoss, TODAY } from '../data/mockData';
 import { EngagementChip, MemberAvatar, SeverityChip, StatBlock } from '../components/shared';
+import MemberInternalNotes from '../components/MemberInternalNotes';
 import type { Member, SessionNote, WeightGoal } from '../types';
 
 function GoalProgressCard({ member, goal, onEdit }: { member: Member; goal: WeightGoal; onEdit: () => void }) {
@@ -432,11 +434,21 @@ function NotesTab({ member }: { member: Member }) {
   );
 }
 
+const TAB_KEYS = ['overview', 'medication', 'goals', 'notes', 'internal-notes'];
+
 export default function MemberProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const member = memberById(id ?? '');
-  const [tab, setTab] = useState(0);
+  const tabParam = searchParams.get('tab');
+  const [tab, setTab] = useState(() => Math.max(0, TAB_KEYS.indexOf(tabParam ?? 'overview')));
+  const highlightNoteId = searchParams.get('note');
+
+  // Keep the tab in sync when deep-linked (e.g. from the internal notes queue).
+  useEffect(() => {
+    if (tabParam) setTab(Math.max(0, TAB_KEYS.indexOf(tabParam)));
+  }, [tabParam]);
   const [goal, setGoal] = useState<WeightGoal | null>(member?.weightGoal ?? null);
   const [editOpen, setEditOpen] = useState(false);
 
@@ -497,6 +509,7 @@ export default function MemberProfile() {
         <Tab label="Medication" />
         <Tab label="Goals & Nutrition" />
         <Tab label="Session notes" />
+        <Tab label="Internal notes" icon={<LockPersonRoundedIcon sx={{ fontSize: 16 }} />} iconPosition="start" />
       </Tabs>
 
       {tab === 0 && (
@@ -512,6 +525,7 @@ export default function MemberProfile() {
       {tab === 1 && <MedicationTab member={member} />}
       {tab === 2 && <GoalsTab member={member} />}
       {tab === 3 && <NotesTab member={member} />}
+      {tab === 4 && <MemberInternalNotes member={member} highlightNoteId={highlightNoteId} />}
 
       <GoalEditDialog
         open={editOpen}

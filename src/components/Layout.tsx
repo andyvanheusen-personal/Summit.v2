@@ -32,7 +32,7 @@ const NAV = [
 export default function Layout() {
   const { isAuthenticated, logout } = useAuth();
   const { unreadCount: unread } = useMessages();
-  const { taggedActiveCount } = useInternalNotes();
+  const { unseenCount } = useInternalNotes();
   const navigate = useNavigate();
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
@@ -109,7 +109,7 @@ export default function Layout() {
                 {item.label === 'Inbox' ? (
                   <Badge badgeContent={unread} color="secondary">{item.icon}</Badge>
                 ) : item.label === 'Internal Notes' ? (
-                  <Badge badgeContent={taggedActiveCount} color="secondary">{item.icon}</Badge>
+                  <Badge badgeContent={unseenCount} color="secondary">{item.icon}</Badge>
                 ) : item.label === 'Today' ? (
                   <Badge badgeContent={openAlerts} color="error" variant="dot">{item.icon}</Badge>
                 ) : (

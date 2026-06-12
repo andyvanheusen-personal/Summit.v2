@@ -1,6 +1,7 @@
-import { Avatar, Box, Chip, Typography } from '@mui/material';
+import { Avatar, Box, Chip, Tooltip, Typography } from '@mui/material';
 import type { ChipProps } from '@mui/material';
-import type { AlertSeverity, EngagementStatus, Member, SideEffectSeverity } from '../types';
+import { staffById } from '../data/mockData';
+import type { AlertSeverity, EngagementStatus, InternalNote, InternalNoteCategory, Member, SideEffectSeverity } from '../types';
 
 const AVATAR_COLORS = ['#0E7C72', '#3D7DD8', '#8E5BC0', '#D96A9B', '#E8A13D', '#5B8C3E'];
 
@@ -49,6 +50,46 @@ export function SeverityChip({ severity }: { severity: AlertSeverity | SideEffec
       size="small"
     />
   );
+}
+
+export const CATEGORY_COLOR: Record<InternalNoteCategory, 'info' | 'secondary' | 'warning' | 'default'> = {
+  Engagement: 'info',
+  'Eligibility / PBM': 'secondary',
+  'Side Effects': 'warning',
+  General: 'default',
+};
+
+const STAFF_COLORS: Record<string, string> = {
+  's-1': '#0E7C72',
+  's-2': '#8E5BC0',
+  's-3': '#3D7DD8',
+  's-4': '#5B8C3E',
+  's-5': '#D96A9B',
+};
+
+export function staffInitials(name: string) {
+  return name
+    .replace('Dr. ', '')
+    .split(' ')
+    .map((p) => p[0])
+    .join('')
+    .slice(0, 2);
+}
+
+export function StaffAvatar({ staffId, size = 26 }: { staffId: string; size?: number }) {
+  const staff = staffById(staffId);
+  if (!staff) return null;
+  return (
+    <Tooltip title={`${staff.name} — ${staff.role}`}>
+      <Avatar sx={{ width: size, height: size, fontSize: size * 0.42, fontWeight: 700, bgcolor: STAFF_COLORS[staffId] ?? '#5B6B73' }}>
+        {staffInitials(staff.name)}
+      </Avatar>
+    </Tooltip>
+  );
+}
+
+export function noteLastActivity(note: InternalNote) {
+  return note.replies.length ? note.replies[note.replies.length - 1].sentAt : note.createdAt;
 }
 
 export function StatBlock({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {

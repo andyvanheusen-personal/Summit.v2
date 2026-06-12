@@ -2,66 +2,28 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import {
-  Avatar, AvatarGroup, Box, Card, Chip, Collapse, Divider, IconButton, Stack,
-  Tooltip, Typography,
+  AvatarGroup, Box, Card, Chip, Collapse, Divider, IconButton, Stack, Tooltip, Typography,
 } from '@mui/material';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
+import MarkChatReadRoundedIcon from '@mui/icons-material/MarkChatReadRounded';
+import MarkChatUnreadRoundedIcon from '@mui/icons-material/MarkChatUnreadRounded';
 import SpeakerNotesRoundedIcon from '@mui/icons-material/SpeakerNotesRounded';
 import LockPersonRoundedIcon from '@mui/icons-material/LockPersonRounded';
 import { CURRENT_STAFF_ID, memberById, staffById } from '../data/mockData';
 import { useInternalNotes } from '../context/InternalNotesContext';
-import { MemberAvatar } from '../components/shared';
-import type { InternalNote, InternalNoteCategory } from '../types';
-
-const CATEGORY_COLOR: Record<InternalNoteCategory, 'info' | 'secondary' | 'warning' | 'default'> = {
-  Engagement: 'info',
-  'Eligibility / PBM': 'secondary',
-  'Side Effects': 'warning',
-  General: 'default',
-};
-
-const STAFF_COLORS: Record<string, string> = {
-  's-1': '#0E7C72',
-  's-2': '#8E5BC0',
-  's-3': '#3D7DD8',
-  's-4': '#5B8C3E',
-  's-5': '#D96A9B',
-};
-
-function staffInitials(name: string) {
-  return name
-    .replace('Dr. ', '')
-    .split(' ')
-    .map((p) => p[0])
-    .join('')
-    .slice(0, 2);
-}
-
-function StaffAvatar({ staffId, size = 26 }: { staffId: string; size?: number }) {
-  const staff = staffById(staffId);
-  if (!staff) return null;
-  return (
-    <Tooltip title={`${staff.name} — ${staff.role}`}>
-      <Avatar sx={{ width: size, height: size, fontSize: size * 0.42, fontWeight: 700, bgcolor: STAFF_COLORS[staffId] ?? '#5B6B73' }}>
-        {staffInitials(staff.name)}
-      </Avatar>
-    </Tooltip>
-  );
-}
-
-function lastActivity(note: InternalNote) {
-  return note.replies.length ? note.replies[note.replies.length - 1].sentAt : note.createdAt;
-}
+import { CATEGORY_COLOR, MemberAvatar, StaffAvatar, noteLastActivity as lastActivity } from '../components/shared';
+import type { InternalNote } from '../types';
 
 function NoteRow({ note, resolved }: { note: InternalNote; resolved?: boolean }) {
   const navigate = useNavigate();
-  const { setStatus } = useInternalNotes();
+  const { setStatus, unseenIds, markSeen, markUnseen } = useInternalNotes();
   const [expanded, setExpanded] = useState(false);
   const member = memberById(note.memberId)!;
   const author = staffById(note.authorId)!;
+  const unseen = unseenIds.has(note.id);
 
   return (
     <Box
@@ -72,7 +34,10 @@ function NoteRow({ note, resolved }: { note: InternalNote; resolved?: boolean })
       }
     >
       <Box
-        onClick={() => navigate(`/members/${member.id}`)}
+        onClick={() => {
+          markSeen(note.id);
+          navigate(`/members/${member.id}?tab=internal-notes&note=${note.id}`);
+        }}
         sx={{
           display: 'flex',
           gap: 2,
@@ -80,16 +45,25 @@ function NoteRow({ note, resolved }: { note: InternalNote; resolved?: boolean })
           py: 2,
           cursor: 'pointer',
           alignItems: 'flex-start',
+          ...(unseen && { bgcolor: 'rgba(240,101,60,0.05)' }),
           '&:hover': { bgcolor: resolved ? '#EAEFEF' : 'rgba(14,124,114,0.04)' },
         }}
       >
         <MemberAvatar member={member} size={40} />
         <Box sx={{ flexGrow: 1, minWidth: 0 }}>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5 }}>
-            <Typography variant="subtitle2" sx={resolved ? { color: 'text.secondary' } : undefined}>
+            <Typography variant="subtitle2" sx={resolved ? { color: 'text.secondary' } : unseen ? { fontWeight: 800 } : undefined}>
               {note.title}
             </Typography>
             <Chip label={note.category} size="small" color={CATEGORY_COLOR[note.category]} variant="outlined" />
+            {unseen && (
+              <Chip
+                label={note.replies.length ? 'New reply' : 'New'}
+                size="small"
+                color="secondary"
+                sx={{ height: 20, fontSize: 11 }}
+              />
+            )}
             {resolved && (
               <Chip
                 icon={<CheckCircleRoundedIcon sx={{ fontSize: 14 }} />}
@@ -139,9 +113,16 @@ function NoteRow({ note, resolved }: { note: InternalNote; resolved?: boolean })
           </Stack>
         </Box>
         <Stack direction="row" spacing={0.5} sx={{ flexShrink: 0, alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
+          <Tooltip title={unseen ? 'Mark as read' : 'Mark as unread'}>
+            <IconButton size="small" onClick={() => (unseen ? markSeen(note.id) : markUnseen(note.id))}>
+              {unseen
+                ? <MarkChatReadRoundedIcon fontSize="small" />
+                : <MarkChatUnreadRoundedIcon fontSize="small" />}
+            </IconButton>
+          </Tooltip>
           {note.replies.length > 0 && (
             <Tooltip title={expanded ? 'Hide replies' : 'Show replies'}>
-              <IconButton size="small" onClick={() => setExpanded((v) => !v)}>
+              <IconButton size="small" onClick={() => { markSeen(note.id); setExpanded((v) => !v); }}>
                 <ExpandMoreRoundedIcon
                   fontSize="small"
                   sx={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }}

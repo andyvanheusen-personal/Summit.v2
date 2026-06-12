@@ -53,7 +53,7 @@ export default function Dashboard() {
     [alerts],
   );
   const { unreadCount: unread } = useMessages();
-  const { taggedActiveCount } = useInternalNotes();
+  const { unseenCount } = useInternalNotes();
   const todaysAppts = APPOINTMENTS.filter((a) => dayjs(a.start).isSame(TODAY, 'day'));
   const avgLossPct = (
     MEMBERS.reduce((sum, m) => sum + (totalLoss(m) / m.weightGoal.startWeightLbs) * 100, 0) / MEMBERS.length
@@ -68,7 +68,7 @@ export default function Dashboard() {
       <Stack sx={{ mb: 3 }}>
         <Typography variant="h4">Good morning, {COACH.name.split(' ')[0]}</Typography>
         <Typography color="text.secondary">
-          You have {todaysAppts.length} sessions, {openAlerts.length} open alerts, {unread} unread messages and {taggedActiveCount} internal notes waiting on you today.
+          You have {todaysAppts.length} sessions, {openAlerts.length} open alerts, {unread} unread messages and {unseenCount} unread internal notes today.
         </Typography>
       </Stack>
 
