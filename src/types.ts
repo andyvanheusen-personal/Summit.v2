@@ -134,6 +134,34 @@ export interface Message {
   read: boolean;
 }
 
+export interface StaffMember {
+  id: string;
+  name: string;
+  role: string;
+}
+
+export type InternalNoteCategory = 'Engagement' | 'Eligibility / PBM' | 'Side Effects' | 'General';
+
+export interface InternalNoteReply {
+  id: string;
+  authorId: string;
+  body: string;
+  sentAt: string;
+}
+
+export interface InternalNote {
+  id: string;
+  memberId: string;
+  title: string;
+  body: string;
+  authorId: string;
+  taggedIds: string[];
+  category: InternalNoteCategory;
+  status: 'active' | 'resolved';
+  createdAt: string;
+  replies: InternalNoteReply[];
+}
+
 export interface Appointment {
   id: string;
   memberId: string;

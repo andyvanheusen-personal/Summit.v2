@@ -16,6 +16,7 @@ import MedicationRoundedIcon from '@mui/icons-material/MedicationRounded';
 import MarkChatUnreadRoundedIcon from '@mui/icons-material/MarkChatUnreadRounded';
 import { ALERTS, APPOINTMENTS, COACH, MEMBERS, TASKS, TODAY, memberById, totalLoss } from '../data/mockData';
 import { useMessages } from '../context/MessagesContext';
+import { useInternalNotes } from '../context/InternalNotesContext';
 import { MemberAvatar, SeverityChip } from '../components/shared';
 import type { CoachAlert } from '../types';
 
@@ -52,6 +53,7 @@ export default function Dashboard() {
     [alerts],
   );
   const { unreadCount: unread } = useMessages();
+  const { taggedActiveCount } = useInternalNotes();
   const todaysAppts = APPOINTMENTS.filter((a) => dayjs(a.start).isSame(TODAY, 'day'));
   const avgLossPct = (
     MEMBERS.reduce((sum, m) => sum + (totalLoss(m) / m.weightGoal.startWeightLbs) * 100, 0) / MEMBERS.length
@@ -66,7 +68,7 @@ export default function Dashboard() {
       <Stack sx={{ mb: 3 }}>
         <Typography variant="h4">Good morning, {COACH.name.split(' ')[0]}</Typography>
         <Typography color="text.secondary">
-          You have {todaysAppts.length} sessions, {openAlerts.length} open alerts and {unread} unread messages today.
+          You have {todaysAppts.length} sessions, {openAlerts.length} open alerts, {unread} unread messages and {taggedActiveCount} internal notes waiting on you today.
         </Typography>
       </Stack>
 

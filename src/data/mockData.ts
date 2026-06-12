@@ -4,11 +4,13 @@ import type {
   CoachAlert,
   CoachTask,
   DoseLog,
+  InternalNote,
   Member,
   Message,
   SessionNote,
   SideEffect,
   SmartGoal,
+  StaffMember,
   TitrationStep,
   WeightReading,
 } from '../types';
@@ -301,3 +303,143 @@ export const COACH = {
   title: 'Senior Health Coach',
   email: 'sarah.mitchell@summithealth.com',
 };
+
+export const CURRENT_STAFF_ID = 's-1';
+
+export const STAFF: StaffMember[] = [
+  { id: 's-1', name: 'Sarah Mitchell', role: 'Senior Health Coach' },
+  { id: 's-2', name: 'Dr. Elena Vasquez', role: 'Supervising Clinician' },
+  { id: 's-3', name: 'Priya Raman', role: 'Pharmacy Liaison (PBM)' },
+  { id: 's-4', name: 'Marcus Webb', role: 'Program Manager' },
+  { id: 's-5', name: 'Janet Cole', role: 'Member Services — Eligibility' },
+];
+
+export function staffById(id: string): StaffMember | undefined {
+  return STAFF.find((s) => s.id === id);
+}
+
+export const INTERNAL_NOTES: InternalNote[] = [
+  {
+    id: 'in-1',
+    memberId: 'm-8',
+    title: 'Severe nausea after 15 mg step — hold or step back?',
+    body: 'Miguel reported severe nausea after moving to 15 mg and skipped dinner two nights running. He is asking whether to skip this week’s shot. I’ve advised small protein-first meals in the meantime — need clinical guidance on whether to hold at 15 mg, step back to 12.5 mg, or pause a week.',
+    authorId: 's-1',
+    taggedIds: ['s-2'],
+    category: 'Side Effects',
+    status: 'active',
+    createdAt: TODAY.subtract(2, 'hour').toISOString(),
+    replies: [
+      { id: 'in-1-r1', authorId: 's-2', body: 'Have him hold the next dose and step back to 12.5 mg for two weeks. If nausea persists at 12.5 I want a call with him. Please log this as an escalated side effect.', sentAt: TODAY.subtract(1, 'hour').toISOString() },
+    ],
+  },
+  {
+    id: 'in-2',
+    memberId: 'm-6',
+    title: 'Re-engagement strategy — 19 days quiet',
+    body: 'Robert has gone quiet — no readings or messages for 19 days and half his recent doses missed. He’s one of our longest-tenured members and his local’s fund office watches retention closely. Sarah — what’s the re-engagement plan? Happy to support with program-level options.',
+    authorId: 's-4',
+    taggedIds: ['s-1'],
+    category: 'Engagement',
+    status: 'active',
+    createdAt: TODAY.subtract(1, 'day').toISOString(),
+    replies: [
+      { id: 'in-2-r1', authorId: 's-1', body: 'He responds better to phone than app messages — planning a low-pressure call Friday framed around maintenance, not loss. Considering a 4-week "reset goal" with one habit (evening walk).', sentAt: TODAY.subtract(20, 'hour').toISOString() },
+      { id: 'in-2-r2', authorId: 's-4', body: 'Like it — the reset-goal pattern worked well for plateau members last quarter. Also worth mentioning his eligibility renewal on the call so it doesn’t surprise him.', sentAt: TODAY.subtract(18, 'hour').toISOString() },
+    ],
+  },
+  {
+    id: 'in-3',
+    memberId: 'm-6',
+    title: 'Benefit renewal due July 1 — PBM confirmation needed',
+    body: 'Robert’s eligibility shows Renewal Due with the IBEW Local 134 fund office. Priya — can you confirm with the PBM whether his Wegovy prior auth carries through the renewal or needs resubmission? Don’t want a coverage gap mid-titration-maintenance.',
+    authorId: 's-5',
+    taggedIds: ['s-1', 's-3'],
+    category: 'Eligibility / PBM',
+    status: 'active',
+    createdAt: TODAY.subtract(3, 'day').toISOString(),
+    replies: [
+      { id: 'in-3-r1', authorId: 's-3', body: 'Checked with the PBM — prior auth survives renewal IF the fund office files by June 20. I’ve flagged it with their administrator and will chase next week.', sentAt: TODAY.subtract(2, 'day').toISOString() },
+    ],
+  },
+  {
+    id: 'in-4',
+    memberId: 'm-3',
+    title: 'Missed doses — exploring barriers, not motivation',
+    body: 'Patricia has missed 2 of her last 4 doses but engages well in sessions. I don’t think this is motivation — suspect either injection anxiety or a scheduling barrier (she works early shifts). Planning a barriers conversation this week; tagging for visibility in case a clinician call would help.',
+    authorId: 's-1',
+    taggedIds: ['s-2'],
+    category: 'Engagement',
+    status: 'active',
+    createdAt: TODAY.subtract(4, 'day').toISOString(),
+    replies: [],
+  },
+  {
+    id: 'in-5',
+    memberId: 'm-11',
+    title: 'Skipped injection — possible side-effect anxiety',
+    body: 'Sandra skipped this week’s injection without a logged reason, and her last side-effect entry was moderate heartburn. I suspect she may be avoiding the dose to avoid symptoms. Can you raise it gently at her next check-in? If it is symptom avoidance I can adjust the plan — antacid guidance and dosing with food are both options.',
+    authorId: 's-2',
+    taggedIds: ['s-1'],
+    category: 'Side Effects',
+    status: 'active',
+    createdAt: TODAY.subtract(5, 'day').toISOString(),
+    replies: [],
+  },
+  {
+    id: 'in-9',
+    memberId: 'm-2',
+    title: 'Zepbound supply constraint — heads-up for July fills',
+    body: 'The PBM flagged intermittent Zepbound supply issues for July fills at retail pharmacies. James is due for his next refill mid-July. Mail-order has stock — at his next session, can you ask whether he wants me to move his fills over before it becomes a gap?',
+    authorId: 's-3',
+    taggedIds: ['s-1'],
+    category: 'Eligibility / PBM',
+    status: 'active',
+    createdAt: TODAY.subtract(6, 'hour').toISOString(),
+    replies: [],
+  },
+  {
+    id: 'in-6',
+    memberId: 'm-4',
+    title: 'Rapid loss >2.5 lbs/week — protein plan adjusted',
+    body: 'Darnell was losing faster than 2.5 lbs/week for three straight weeks. Reviewed intake — protein well under target on site days. We agreed a packed-lunch plan and two resistance sessions weekly.',
+    authorId: 's-1',
+    taggedIds: ['s-2'],
+    category: 'Side Effects',
+    status: 'resolved',
+    createdAt: TODAY.subtract(3, 'week').toISOString(),
+    replies: [
+      { id: 'in-6-r1', authorId: 's-2', body: 'Plan looks right. Recheck weekly rate in two weeks; flag me if still >2.5.', sentAt: TODAY.subtract(20, 'day').toISOString() },
+      { id: 'in-6-r2', authorId: 's-1', body: 'Two-week recheck done — rate now 1.9 lbs/week and protein at target. Resolving.', sentAt: TODAY.subtract(6, 'day').toISOString() },
+    ],
+  },
+  {
+    id: 'in-7',
+    memberId: 'm-5',
+    title: 'PBM prior auth renewal — approved',
+    body: 'Linda’s Wegovy prior authorization was due to lapse at month end. Submitted renewal with updated weight-loss documentation (12.4% from baseline).',
+    authorId: 's-3',
+    taggedIds: ['s-1'],
+    category: 'Eligibility / PBM',
+    status: 'resolved',
+    createdAt: TODAY.subtract(2, 'week').toISOString(),
+    replies: [
+      { id: 'in-7-r1', authorId: 's-3', body: 'Approved for 12 months. No action needed from coaching side.', sentAt: TODAY.subtract(9, 'day').toISOString() },
+    ],
+  },
+  {
+    id: 'in-8',
+    memberId: 'm-7',
+    title: 'Injection-site irritation — technique coaching needed',
+    body: 'Angela reported recurring irritation at injection sites during her clinical review. Can you walk through site rotation and needle technique with her on video and send the injection guide?',
+    authorId: 's-2',
+    taggedIds: ['s-1'],
+    category: 'Side Effects',
+    status: 'resolved',
+    createdAt: TODAY.subtract(4, 'week').toISOString(),
+    replies: [
+      { id: 'in-8-r1', authorId: 's-1', body: 'Technique session done — covered rotation and needle angle, guide sent. Will monitor for two weeks.', sentAt: TODAY.subtract(4, 'week').add(2, 'day').toISOString() },
+      { id: 'in-8-r2', authorId: 's-1', body: 'Two weeks on — no recurrence reported. Resolving.', sentAt: TODAY.subtract(2, 'week').toISOString() },
+    ],
+  },
+];

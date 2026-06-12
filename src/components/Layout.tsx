@@ -7,6 +7,7 @@ import {
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
 import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
+import SpeakerNotesRoundedIcon from '@mui/icons-material/SpeakerNotesRounded';
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded';
 import VerifiedUserRoundedIcon from '@mui/icons-material/VerifiedUserRounded';
@@ -14,6 +15,7 @@ import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import TerrainRoundedIcon from '@mui/icons-material/TerrainRounded';
 import { useAuth } from '../auth/AuthContext';
 import { useMessages } from '../context/MessagesContext';
+import { useInternalNotes } from '../context/InternalNotesContext';
 import { ALERTS, COACH } from '../data/mockData';
 
 const DRAWER_WIDTH = 240;
@@ -22,6 +24,7 @@ const NAV = [
   { to: '/', label: 'Today', icon: <DashboardRoundedIcon /> },
   { to: '/caseload', label: 'Caseload', icon: <GroupsRoundedIcon /> },
   { to: '/inbox', label: 'Inbox', icon: <ForumRoundedIcon /> },
+  { to: '/internal-notes', label: 'Internal Notes', icon: <SpeakerNotesRoundedIcon /> },
   { to: '/calendar', label: 'Calendar', icon: <CalendarMonthRoundedIcon /> },
   { to: '/reports', label: 'Reports', icon: <InsightsRoundedIcon /> },
 ];
@@ -29,6 +32,7 @@ const NAV = [
 export default function Layout() {
   const { isAuthenticated, logout } = useAuth();
   const { unreadCount: unread } = useMessages();
+  const { taggedActiveCount } = useInternalNotes();
   const navigate = useNavigate();
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
@@ -52,7 +56,17 @@ export default function Layout() {
           },
         }}
       >
-        <Toolbar sx={{ gap: 1.2, px: 2.5 }}>
+        <Toolbar
+          onClick={() => navigate('/')}
+          role="link"
+          aria-label="Go to Today dashboard"
+          sx={{
+            gap: 1.2,
+            px: 2.5,
+            cursor: 'pointer',
+            '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
+          }}
+        >
           <Box
             sx={{
               width: 34, height: 34, borderRadius: 2.5, display: 'grid', placeItems: 'center',
@@ -94,6 +108,8 @@ export default function Layout() {
               <ListItemIcon>
                 {item.label === 'Inbox' ? (
                   <Badge badgeContent={unread} color="secondary">{item.icon}</Badge>
+                ) : item.label === 'Internal Notes' ? (
+                  <Badge badgeContent={taggedActiveCount} color="secondary">{item.icon}</Badge>
                 ) : item.label === 'Today' ? (
                   <Badge badgeContent={openAlerts} color="error" variant="dot">{item.icon}</Badge>
                 ) : (
