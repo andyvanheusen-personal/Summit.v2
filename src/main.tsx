@@ -6,6 +6,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { theme } from './theme';
 import { AuthProvider } from './auth/AuthContext';
+import { MembersProvider } from './context/MembersContext';
 import { MessagesProvider } from './context/MessagesContext';
 import { InternalNotesProvider } from './context/InternalNotesContext';
 import Layout from './components/Layout';
@@ -42,11 +43,13 @@ createRoot(document.getElementById('root')!).render(
       <CssBaseline />
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <AuthProvider>
-          <MessagesProvider>
-            <InternalNotesProvider>
-              <RouterProvider router={router} />
-            </InternalNotesProvider>
-          </MessagesProvider>
+          <MembersProvider>
+            <MessagesProvider>
+              <InternalNotesProvider>
+                <RouterProvider router={router} />
+              </InternalNotesProvider>
+            </MessagesProvider>
+          </MembersProvider>
         </AuthProvider>
       </LocalizationProvider>
     </ThemeProvider>

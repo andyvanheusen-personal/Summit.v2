@@ -6,7 +6,8 @@ import {
 } from '@mui/material';
 import VideocamRoundedIcon from '@mui/icons-material/VideocamRounded';
 import PhoneRoundedIcon from '@mui/icons-material/PhoneRounded';
-import { APPOINTMENTS, TODAY, memberById } from '../data/mockData';
+import { APPOINTMENTS, TODAY } from '../data/mockData';
+import { useMembers } from '../context/MembersContext';
 import { MemberAvatar } from '../components/shared';
 
 const STATUS_META = {
@@ -17,6 +18,7 @@ const STATUS_META = {
 
 export default function CalendarPage() {
   const navigate = useNavigate();
+  const { memberById } = useMembers();
 
   const weekStart = TODAY.startOf('week').add(1, 'day'); // Monday
   const days = useMemo(() => Array.from({ length: 5 }, (_, i) => weekStart.add(i, 'day')), [weekStart]);

@@ -6,20 +6,22 @@ import {
   TableContainer, TableHead, TableRow, TextField, ToggleButton, ToggleButtonGroup, Typography,
 } from '@mui/material';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
-import { MEMBERS, currentWeight, goalProgressPct, totalLoss } from '../data/mockData';
+import { useMembers } from '../context/MembersContext';
+import { currentWeight, goalProgressPct, totalLoss } from '../data/memberStats';
 import { EngagementChip, MemberAvatar } from '../components/shared';
 import type { EngagementStatus } from '../types';
 
 export default function Caseload() {
   const navigate = useNavigate();
+  const { members } = useMembers();
   const [query, setQuery] = useState('');
   const [local, setLocal] = useState('all');
   const [engagement, setEngagement] = useState<'all' | EngagementStatus>('all');
 
-  const locals = useMemo(() => [...new Set(MEMBERS.map((m) => m.unionLocal))].sort(), []);
+  const locals = useMemo(() => [...new Set(members.map((m) => m.unionLocal))].sort(), [members]);
 
   const rows = useMemo(() => {
-    return MEMBERS.filter((m) => {
+    return members.filter((m) => {
       const name = `${m.firstName} ${m.lastName}`.toLowerCase();
       if (query && !name.includes(query.toLowerCase())) return false;
       if (local !== 'all' && m.unionLocal !== local) return false;
@@ -29,13 +31,13 @@ export default function Caseload() {
       const order = { lapsed: 0, 'at-risk': 1, engaged: 2 };
       return order[a.engagement] - order[b.engagement] || a.lastName.localeCompare(b.lastName);
     });
-  }, [query, local, engagement]);
+  }, [members, query, local, engagement]);
 
   const counts = useMemo(() => ({
-    engaged: MEMBERS.filter((m) => m.engagement === 'engaged').length,
-    atRisk: MEMBERS.filter((m) => m.engagement === 'at-risk').length,
-    lapsed: MEMBERS.filter((m) => m.engagement === 'lapsed').length,
-  }), []);
+    engaged: members.filter((m) => m.engagement === 'engaged').length,
+    atRisk: members.filter((m) => m.engagement === 'at-risk').length,
+    lapsed: members.filter((m) => m.engagement === 'lapsed').length,
+  }), [members]);
 
   return (
     <Box>
@@ -43,7 +45,7 @@ export default function Caseload() {
         <Box sx={{ flexGrow: 1 }}>
           <Typography variant="h4">Caseload</Typography>
           <Typography color="text.secondary">
-            {MEMBERS.length} members · {counts.engaged} engaged · {counts.atRisk} at risk · {counts.lapsed} lapsed
+            {members.length} members · {counts.engaged} engaged · {counts.atRisk} at risk · {counts.lapsed} lapsed
           </Typography>
         </Box>
         <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>

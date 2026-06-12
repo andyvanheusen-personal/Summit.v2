@@ -5,7 +5,8 @@ import {
 } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { PieChart } from '@mui/x-charts/PieChart';
-import { MEMBERS, totalLoss } from '../data/mockData';
+import { useMembers } from '../context/MembersContext';
+import { totalLoss } from '../data/memberStats';
 import { StatBlock } from '../components/shared';
 
 interface CohortRow {
@@ -18,10 +19,11 @@ interface CohortRow {
 }
 
 export default function Reports() {
+  const { members } = useMembers();
   const cohorts: CohortRow[] = useMemo(() => {
-    const locals = [...new Set(MEMBERS.map((m) => m.unionLocal))].sort();
+    const locals = [...new Set(members.map((m) => m.unionLocal))].sort();
     return locals.map((local) => {
-      const ms = MEMBERS.filter((m) => m.unionLocal === local);
+      const ms = members.filter((m) => m.unionLocal === local);
       return {
         local,
         members: ms.length,
@@ -31,18 +33,18 @@ export default function Reports() {
         totalLbs: Math.round(ms.reduce((s, m) => s + totalLoss(m), 0)),
       };
     });
-  }, []);
+  }, [members]);
 
-  const totalLbsLost = Math.round(MEMBERS.reduce((s, m) => s + totalLoss(m), 0));
-  const avgLossPct = (MEMBERS.reduce((s, m) => s + (totalLoss(m) / m.weightGoal.startWeightLbs) * 100, 0) / MEMBERS.length).toFixed(1);
-  const persistence12 = Math.round((MEMBERS.filter((m) => m.persistenceWeeks >= 12).length / MEMBERS.length) * 100);
-  const fivePctClub = MEMBERS.filter((m) => totalLoss(m) / m.weightGoal.startWeightLbs >= 0.05).length;
+  const totalLbsLost = Math.round(members.reduce((s, m) => s + totalLoss(m), 0));
+  const avgLossPct = (members.reduce((s, m) => s + (totalLoss(m) / m.weightGoal.startWeightLbs) * 100, 0) / members.length).toFixed(1);
+  const persistence12 = Math.round((members.filter((m) => m.persistenceWeeks >= 12).length / members.length) * 100);
+  const fivePctClub = members.filter((m) => totalLoss(m) / m.weightGoal.startWeightLbs >= 0.05).length;
 
   const phaseCounts = useMemo(() => {
     const counts = new Map<string, number>();
-    for (const m of MEMBERS) counts.set(m.phase, (counts.get(m.phase) ?? 0) + 1);
+    for (const m of members) counts.set(m.phase, (counts.get(m.phase) ?? 0) + 1);
     return [...counts.entries()].map(([label, value], id) => ({ id, label, value }));
-  }, []);
+  }, [members]);
 
   return (
     <Box>
@@ -64,7 +66,7 @@ export default function Reports() {
               <StatBlock label="12-week persistence" value={`${persistence12}%`} sub="still on therapy at week 12" />
             </Grid>
             <Grid size={{ xs: 6, md: 3 }}>
-              <StatBlock label="≥5% loss milestone" value={`${fivePctClub} of ${MEMBERS.length}`} sub="clinically meaningful threshold" />
+              <StatBlock label="≥5% loss milestone" value={`${fivePctClub} of ${members.length}`} sub="clinically meaningful threshold" />
             </Grid>
           </Grid>
         </CardContent>

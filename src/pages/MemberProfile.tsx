@@ -18,7 +18,9 @@ import LockRoundedIcon from '@mui/icons-material/LockRounded';
 import RestaurantRoundedIcon from '@mui/icons-material/RestaurantRounded';
 import FitnessCenterRoundedIcon from '@mui/icons-material/FitnessCenterRounded';
 import LockPersonRoundedIcon from '@mui/icons-material/LockPersonRounded';
-import { TITRATION, currentWeight, memberById, totalLoss, TODAY } from '../data/mockData';
+import { TODAY } from '../data/mockData';
+import { currentWeight, totalLoss } from '../data/memberStats';
+import { useMembers } from '../context/MembersContext';
 import { EngagementChip, MemberAvatar, SeverityChip, StatBlock } from '../components/shared';
 import MemberInternalNotes from '../components/MemberInternalNotes';
 import type { Member, SessionNote, WeightGoal } from '../types';
@@ -180,7 +182,8 @@ function GoalEditDialog({ open, goal, onClose, onSave }: {
 }
 
 function MedicationTab({ member }: { member: Member }) {
-  const ladder = TITRATION[member.medication];
+  const { titration } = useMembers();
+  const ladder = titration[member.medication];
   const recentLogs = [...member.doseLogs].reverse().slice(0, 8);
   const [effects, setEffects] = useState(member.sideEffects);
 
@@ -439,6 +442,7 @@ const TAB_KEYS = ['overview', 'medication', 'goals', 'notes', 'internal-notes'];
 export default function MemberProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { memberById } = useMembers();
   const [searchParams] = useSearchParams();
   const member = memberById(id ?? '');
   const tabParam = searchParams.get('tab');

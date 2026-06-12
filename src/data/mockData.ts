@@ -29,7 +29,12 @@ function mulberry32(seed: number) {
   };
 }
 
-export const TITRATION: Record<string, TitrationStep[]> = {
+// The members domain (MEMBERS, TITRATION and per-member helpers) has migrated to
+// Strata — the portal fetches it via /api/members and /api/titration (see
+// context/MembersContext.tsx). The generator below is kept only because the
+// remaining mock domains (ALERTS etc.) derive demo text from member values; it
+// must stay in lockstep with Strata's app/data/members.py until they migrate too.
+const TITRATION: Record<string, TitrationStep[]> = {
   Wegovy: [
     { doseMg: 0.25, label: 'Starting dose', weeks: 'Weeks 1–4' },
     { doseMg: 0.5, label: 'Step 2', weeks: 'Weeks 5–8' },
@@ -229,23 +234,7 @@ function buildMembers(): Member[] {
   });
 }
 
-export const MEMBERS: Member[] = buildMembers();
-
-export function memberById(id: string): Member | undefined {
-  return MEMBERS.find((m) => m.id === id);
-}
-
-export function currentWeight(m: Member): number {
-  return m.readings.length ? m.readings[m.readings.length - 1].weightLbs : m.weightGoal.startWeightLbs;
-}
-
-export function totalLoss(m: Member): number {
-  return Math.round((m.weightGoal.startWeightLbs - currentWeight(m)) * 10) / 10;
-}
-
-export function goalProgressPct(m: Member): number {
-  return Math.max(0, Math.min(100, Math.round((totalLoss(m) / m.weightGoal.targetLossLbs) * 100)));
-}
+const MEMBERS: Member[] = buildMembers();
 
 function fullName(m: Member) {
   return `${m.firstName} ${m.lastName}`;

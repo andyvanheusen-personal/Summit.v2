@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate, Navigate } from 'react-router-dom';
 import {
-  AppBar, Avatar, Badge, Box, Chip, Divider, Drawer, IconButton, List, ListItemButton,
-  ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Tooltip, Typography,
+  Alert, AppBar, Avatar, Badge, Box, Button, Chip, CircularProgress, Divider, Drawer,
+  IconButton, List, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar,
+  Tooltip, Typography,
 } from '@mui/material';
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
@@ -14,6 +15,7 @@ import VerifiedUserRoundedIcon from '@mui/icons-material/VerifiedUserRounded';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import TerrainRoundedIcon from '@mui/icons-material/TerrainRounded';
 import { useAuth } from '../auth/AuthContext';
+import { useMembers } from '../context/MembersContext';
 import { useMessages } from '../context/MessagesContext';
 import { useInternalNotes } from '../context/InternalNotesContext';
 import { ALERTS, COACH } from '../data/mockData';
@@ -31,6 +33,7 @@ const NAV = [
 
 export default function Layout() {
   const { isAuthenticated, logout } = useAuth();
+  const { status: membersStatus, error: membersError, reload: reloadMembers } = useMembers();
   const { unreadCount: unread } = useMessages();
   const { unseenCount } = useInternalNotes();
   const navigate = useNavigate();
@@ -170,7 +173,21 @@ export default function Layout() {
           </Toolbar>
         </AppBar>
         <Box component="main" sx={{ p: { xs: 2, md: 3.5 }, flexGrow: 1 }}>
-          <Outlet />
+          {membersStatus === 'ready' ? (
+            <Outlet />
+          ) : membersStatus === 'loading' ? (
+            <Box sx={{ display: 'grid', placeItems: 'center', minHeight: '60vh' }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Alert
+              severity="error"
+              action={<Button color="inherit" size="small" onClick={reloadMembers}>Retry</Button>}
+            >
+              Couldn't load members from the Strata API ({membersError}). Is the backend running
+              on port 8000?
+            </Alert>
+          )}
         </Box>
       </Box>
     </Box>

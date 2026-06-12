@@ -35,10 +35,18 @@ verification with `chromium.launch({ channel: 'chrome', headless: true })`.
 
 ## Architecture
 
-- `src/data/mockData.ts` — ALL demo data. Deterministic (seeded mulberry32 PRNG),
-  anchored to fixed `TODAY = 2026-06-12`. 12 members across 4 union locals, on
-  Wegovy/Zepbound titration ladders. `Date.now()` is never used. When adding data,
-  derive dates from `TODAY` so the demo stays stable.
+- **Members come from Strata**: `src/context/MembersContext.tsx` fetches
+  `/api/members` + `/api/titration` on load and exposes `members`, `memberById`,
+  `titration`. `Layout` gates the routed pages on that fetch (spinner / error +
+  retry), so pages can assume members are loaded. Pure per-member helpers
+  (`currentWeight`, `totalLoss`, `goalProgressPct`) live in `src/data/memberStats.ts`.
+  The backend must be running on :8000 for member pages to render.
+- `src/data/mockData.ts` — demo data for the not-yet-migrated domains (alerts,
+  tasks, messages, internal notes, appointments, staff). Deterministic (seeded
+  mulberry32 PRNG), anchored to fixed `TODAY = 2026-06-12`. The member generator is
+  still in there (un-exported) because alert text derives from member values — it
+  must stay in lockstep with Strata's `app/data/members.py`. `Date.now()` is never
+  used. When adding data, derive dates from `TODAY` so the demo stays stable.
 - `src/types.ts` — domain types (Member, WeightGoal, InternalNote, Message, …).
   Mirror these as Pydantic models when porting domains to Strata.
 - `src/context/` — mutable demo state lives in React contexts so every surface stays
@@ -76,6 +84,7 @@ up there). Mock data is deterministic, so flows are scriptable.
 
 ## Roadmap
 
-Replace mockData one domain at a time with Strata endpoints (members → messages →
+Replace mockData one domain at a time with Strata endpoints (members ✅ → messages →
 internal notes → appointments/reports) via the `/api` proxy, ideally generating the
-TS client from Strata's OpenAPI schema.
+TS client from Strata's OpenAPI schema (hand-written `types.ts` is still the source
+of truth for now).

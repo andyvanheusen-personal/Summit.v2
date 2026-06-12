@@ -14,7 +14,9 @@ import TrendingDownRoundedIcon from '@mui/icons-material/TrendingDownRounded';
 import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
 import MedicationRoundedIcon from '@mui/icons-material/MedicationRounded';
 import MarkChatUnreadRoundedIcon from '@mui/icons-material/MarkChatUnreadRounded';
-import { ALERTS, APPOINTMENTS, COACH, MEMBERS, TASKS, TODAY, memberById, totalLoss } from '../data/mockData';
+import { ALERTS, APPOINTMENTS, COACH, TASKS, TODAY } from '../data/mockData';
+import { totalLoss } from '../data/memberStats';
+import { useMembers } from '../context/MembersContext';
 import { useMessages } from '../context/MessagesContext';
 import { useInternalNotes } from '../context/InternalNotesContext';
 import { MemberAvatar, SeverityChip } from '../components/shared';
@@ -45,6 +47,7 @@ function KpiCard({ icon, label, value, sub, accent }: {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { members, memberById } = useMembers();
   const [alerts, setAlerts] = useState<CoachAlert[]>(ALERTS);
   const [doneTasks, setDoneTasks] = useState<Set<string>>(new Set());
 
@@ -56,9 +59,9 @@ export default function Dashboard() {
   const { unseenCount } = useInternalNotes();
   const todaysAppts = APPOINTMENTS.filter((a) => dayjs(a.start).isSame(TODAY, 'day'));
   const avgLossPct = (
-    MEMBERS.reduce((sum, m) => sum + (totalLoss(m) / m.weightGoal.startWeightLbs) * 100, 0) / MEMBERS.length
+    members.reduce((sum, m) => sum + (totalLoss(m) / m.weightGoal.startWeightLbs) * 100, 0) / members.length
   ).toFixed(1);
-  const avgAdherence = Math.round(MEMBERS.reduce((s, m) => s + m.adherencePct, 0) / MEMBERS.length);
+  const avgAdherence = Math.round(members.reduce((s, m) => s + m.adherencePct, 0) / members.length);
 
   const resolveAlert = (id: string) =>
     setAlerts((prev) => prev.map((a) => (a.id === id ? { ...a, resolved: true } : a)));
@@ -74,7 +77,7 @@ export default function Dashboard() {
 
       <Grid container spacing={2.5} sx={{ mb: 1 }}>
         <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-          <KpiCard icon={<GroupsRoundedIcon />} label="Active caseload" value={`${MEMBERS.length}`} sub="across 4 union locals" accent="#0E7C72" />
+          <KpiCard icon={<GroupsRoundedIcon />} label="Active caseload" value={`${members.length}`} sub="across 4 union locals" accent="#0E7C72" />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
           <KpiCard icon={<TrendingDownRoundedIcon />} label="Avg. weight loss" value={`${avgLossPct}%`} sub="of starting body weight" accent="#3D7DD8" />

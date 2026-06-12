@@ -12,13 +12,15 @@ import MarkChatReadRoundedIcon from '@mui/icons-material/MarkChatReadRounded';
 import MarkChatUnreadRoundedIcon from '@mui/icons-material/MarkChatUnreadRounded';
 import SpeakerNotesRoundedIcon from '@mui/icons-material/SpeakerNotesRounded';
 import LockPersonRoundedIcon from '@mui/icons-material/LockPersonRounded';
-import { CURRENT_STAFF_ID, memberById, staffById } from '../data/mockData';
+import { CURRENT_STAFF_ID, staffById } from '../data/mockData';
 import { useInternalNotes } from '../context/InternalNotesContext';
+import { useMembers } from '../context/MembersContext';
 import { CATEGORY_COLOR, MemberAvatar, StaffAvatar, noteLastActivity as lastActivity } from '../components/shared';
 import type { InternalNote } from '../types';
 
 function NoteRow({ note, resolved }: { note: InternalNote; resolved?: boolean }) {
   const navigate = useNavigate();
+  const { memberById } = useMembers();
   const { setStatus, unseenIds, markSeen, markUnseen } = useInternalNotes();
   const [expanded, setExpanded] = useState(false);
   const member = memberById(note.memberId)!;

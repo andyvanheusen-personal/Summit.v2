@@ -9,7 +9,8 @@ import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import PersonSearchRoundedIcon from '@mui/icons-material/PersonSearchRounded';
 import BoltRoundedIcon from '@mui/icons-material/BoltRounded';
 import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
-import { TODAY, memberById } from '../data/mockData';
+import { TODAY } from '../data/mockData';
+import { useMembers } from '../context/MembersContext';
 import { useMessages } from '../context/MessagesContext';
 import { MemberAvatar } from '../components/shared';
 import type { Message } from '../types';
@@ -23,6 +24,7 @@ const QUICK_REPLIES = [
 
 export default function Inbox() {
   const navigate = useNavigate();
+  const { memberById } = useMembers();
   const { messages, markThreadRead, sendMessage } = useMessages();
   // No thread is selected (or marked read) until the coach clicks one.
   const [selectedId, setSelectedId] = useState<string | null>(null);
